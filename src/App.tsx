@@ -5,6 +5,7 @@ import { AuthProvider } from '@/src/hooks/useAuth';
 import { FinanceDataProvider } from '@/src/hooks/useFinanceData';
 import { ProtectedRoute, PublicOnlyRoute } from '@/src/components/layout/RouteGuards';
 import { AppShell } from '@/src/components/layout/AppShell';
+import { WelcomePage } from '@/src/pages/WelcomePage';
 import { LoginPage } from '@/src/pages/LoginPage';
 import { RegisterPage } from '@/src/pages/RegisterPage';
 import { ForgotPasswordPage } from '@/src/pages/ForgotPasswordPage';
@@ -33,6 +34,14 @@ export default function App() {
               />
               <Route
                 path="/register"
+                element={
+                  <PublicOnlyRoute>
+                    <RegisterPage />
+                  </PublicOnlyRoute>
+                }
+              />
+              <Route
+                path="/signup"
                 element={
                   <PublicOnlyRoute>
                     <RegisterPage />
@@ -110,9 +119,16 @@ export default function App() {
                 }
               />
 
-              {/* Default & Fallback Routes */}
-              <Route path="/" element={<Navigate to="/dashboard" replace />} />
-              <Route path="*" element={<Navigate to="/dashboard" replace />} />
+              {/* Public Entry & Fallback Routes */}
+              <Route
+                path="/"
+                element={
+                  <PublicOnlyRoute>
+                    <WelcomePage />
+                  </PublicOnlyRoute>
+                }
+              />
+              <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
           </BrowserRouter>
           <Toaster
