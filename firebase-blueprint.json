@@ -1,0 +1,293 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "Registered SpendWise user profile and financial preferences.",
+      "type": "object",
+      "properties": {
+        "uid": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "fullName": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100
+        },
+        "email": {
+          "type": "string",
+          "format": "email",
+          "minLength": 3,
+          "maxLength": 254
+        },
+        "photoURL": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 250000,
+          "pattern": "^(https://.+|data:image/(jpeg|png|webp);base64,[A-Za-z0-9+/=]+)$"
+        },
+        "defaultCurrency": {
+          "type": "string",
+          "enum": ["NGN", "USD", "GBP"]
+        },
+        "preferences": {
+          "type": "object",
+          "description": "User UI, date format, and reporting currency preferences."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": ["uid", "fullName", "email", "defaultCurrency", "preferences", "createdAt", "updatedAt"]
+    },
+    "Category": {
+      "title": "Category",
+      "description": "User-scoped income or expense category.",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "userId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 60
+        },
+        "type": {
+          "type": "string",
+          "enum": ["income", "expense"]
+        },
+        "icon": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 40
+        },
+        "color": {
+          "type": "string",
+          "pattern": "^#[0-9A-Fa-f]{6}$"
+        },
+        "isDefault": {
+          "type": "boolean"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": ["id", "userId", "name", "type", "icon", "color", "isDefault", "createdAt"]
+    },
+    "Transaction": {
+      "title": "Transaction",
+      "description": "User-scoped income or expense transaction in its original currency.",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "userId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "type": {
+          "type": "string",
+          "enum": ["income", "expense"]
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 120
+        },
+        "description": {
+          "type": "string",
+          "maxLength": 500
+        },
+        "amount": {
+          "type": "number"
+        },
+        "currency": {
+          "type": "string",
+          "enum": ["NGN", "USD", "GBP"]
+        },
+        "categoryId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "categoryName": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 60
+        },
+        "date": {
+          "type": "string",
+          "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+        },
+        "paymentMethod": {
+          "type": "string",
+          "enum": ["Cash", "Bank transfer", "Debit card", "Credit card", "Mobile payment", "Other"]
+        },
+        "notes": {
+          "type": "string",
+          "maxLength": 1000
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": ["id", "userId", "type", "title", "description", "amount", "currency", "categoryId", "categoryName", "date", "paymentMethod", "createdAt", "updatedAt"]
+    },
+    "Budget": {
+      "title": "Budget",
+      "description": "Monthly expense budget scoped to a user, expense category, and currency.",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "userId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100
+        },
+        "categoryId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "categoryName": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 60
+        },
+        "amount": {
+          "type": "number"
+        },
+        "currency": {
+          "type": "string",
+          "enum": ["NGN", "USD", "GBP"]
+        },
+        "period": {
+          "type": "string",
+          "enum": ["monthly"]
+        },
+        "month": {
+          "type": "integer"
+        },
+        "year": {
+          "type": "integer"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": ["id", "userId", "name", "categoryId", "categoryName", "amount", "currency", "period", "month", "year", "createdAt", "updatedAt"]
+    },
+    "ExchangeRate": {
+      "title": "ExchangeRate",
+      "description": "User-scoped currency conversion rate snapshot or manual fallback override.",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "userId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "baseCurrency": {
+          "type": "string",
+          "enum": ["NGN", "USD", "GBP"]
+        },
+        "targetCurrency": {
+          "type": "string",
+          "enum": ["NGN", "USD", "GBP"]
+        },
+        "rate": {
+          "type": "number"
+        },
+        "effectiveDate": {
+          "type": "string",
+          "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+        },
+        "source": {
+          "type": "string",
+          "enum": ["api", "manual"]
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": ["id", "userId", "baseCurrency", "targetCurrency", "rate", "effectiveDate", "source", "updatedAt"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": { "$ref": "#/entities/User" },
+      "description": "User profile and preferences document owned strictly by userId."
+    },
+    "/categories/{categoryId}": {
+      "schema": { "$ref": "#/entities/Category" },
+      "description": "Income and expense categories owned by a specific user."
+    },
+    "/transactions/{transactionId}": {
+      "schema": { "$ref": "#/entities/Transaction" },
+      "description": "Financial transactions owned by a specific user."
+    },
+    "/budgets/{budgetId}": {
+      "schema": { "$ref": "#/entities/Budget" },
+      "description": "Monthly expense category budgets owned by a specific user."
+    },
+    "/exchangeRates/{rateId}": {
+      "schema": { "$ref": "#/entities/ExchangeRate" },
+      "description": "Exchange rate snapshots and manual overrides owned by a specific user."
+    }
+  }
+}

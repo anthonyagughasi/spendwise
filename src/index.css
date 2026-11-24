@@ -1,0 +1,59 @@
+@import "tailwindcss";
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+  --bg-app: #F6F7FB;
+  --bg-sidebar: #FFFFFF;
+  --bg-card: #FFFFFF;
+  --bg-elevated: #EEF1F7;
+  --text-primary: #0F172A;
+  --text-secondary: #5B6476;
+  --border-subtle: #E2E6EF;
+  --accent-primary: #6D5CE8;
+  --accent-positive: #159F6B;
+  --accent-negative: #D64545;
+  --accent-warning: #C98212;
+}
+
+.dark {
+  --bg-app: #0B0D12;
+  --bg-sidebar: #10131A;
+  --bg-card: #151923;
+  --bg-elevated: #1B202B;
+  --text-primary: #F4F5F8;
+  --text-secondary: #9299A8;
+  --border-subtle: #282E3B;
+  --accent-primary: #8B7CFF;
+  --accent-positive: #27C98A;
+  --accent-negative: #F06464;
+  --accent-warning: #E5A93B;
+}
+
+@layer base {
+  body {
+    font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+    background-color: var(--bg-app);
+    color: var(--text-primary);
+  }
+
+  h1, h2, h3, h4, .font-display {
+    font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  }
+
+  .font-mono-num {
+    font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

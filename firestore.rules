@@ -1,0 +1,293 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Global Safety Net (Default-Deny)
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // --- Global Primitives ---
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() >= 1 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function isValidCurrency(currency) {
+      return currency is string && currency in ['NGN', 'USD', 'GBP'];
+    }
+
+    function isValidTxType(txType) {
+      return txType is string && txType in ['income', 'expense'];
+    }
+
+    function isValidIsoDate(dateStr) {
+      return dateStr is string && dateStr.size() == 10 && dateStr.matches('^\\d{4}-\\d{2}-\\d{2}$');
+    }
+
+    function isValidPaymentMethod(method) {
+      return method is string && method in [
+        'Cash',
+        'Bank transfer',
+        'Debit card',
+        'Credit card',
+        'Mobile payment',
+        'Other'
+      ];
+    }
+
+    // --- Validation Blueprints ---
+    function isValidPreferences(prefs) {
+      return prefs is map &&
+        prefs.keys().hasAll(['reportingCurrency', 'dateFormat', 'theme']) &&
+        prefs.keys().hasOnly(['reportingCurrency', 'dateFormat', 'theme']) &&
+        isValidCurrency(prefs.reportingCurrency) &&
+        prefs.dateFormat is string &&
+        prefs.dateFormat in ['MMM dd, yyyy', 'dd/MM/yyyy', 'yyyy-MM-dd'] &&
+        prefs.theme is string &&
+        prefs.theme in ['dark', 'light', 'system'];
+    }
+
+    function isValidUser(data, userId) {
+      return data.keys().hasAll(['uid', 'fullName', 'email', 'defaultCurrency', 'preferences', 'createdAt', 'updatedAt']) &&
+        data.keys().hasOnly(['uid', 'fullName', 'email', 'photoURL', 'defaultCurrency', 'preferences', 'createdAt', 'updatedAt']) &&
+        isValidId(data.uid) &&
+        data.uid == userId &&
+        data.uid == request.auth.uid &&
+        data.fullName is string && data.fullName.size() >= 1 && data.fullName.size() <= 100 &&
+        data.email is string && data.email.size() >= 3 && data.email.size() <= 254 &&
+        (!('photoURL' in data) || (
+          data.photoURL is string &&
+          data.photoURL.size() >= 1 &&
+          data.photoURL.size() <= 250000 &&
+          (
+            data.photoURL.matches('^https://.*') ||
+            data.photoURL.matches('^data:image/(jpeg|png|webp);base64,[A-Za-z0-9+/=]+$')
+          )
+        )) &&
+        isValidCurrency(data.defaultCurrency) &&
+        isValidPreferences(data.preferences) &&
+        data.createdAt is timestamp &&
+        data.updatedAt is timestamp;
+    }
+
+    function isValidCategory(data) {
+      return data.keys().hasAll(['id', 'userId', 'name', 'type', 'icon', 'color', 'isDefault', 'createdAt']) &&
+        data.keys().hasOnly(['id', 'userId', 'name', 'type', 'icon', 'color', 'isDefault', 'createdAt']) &&
+        isValidId(data.id) &&
+        isValidId(data.userId) &&
+        data.userId == request.auth.uid &&
+        data.name is string && data.name.size() >= 1 && data.name.size() <= 60 &&
+        isValidTxType(data.type) &&
+        data.icon is string && data.icon.size() >= 1 && data.icon.size() <= 40 &&
+        data.color is string && data.color.size() == 7 && data.color.matches('^#[0-9A-Fa-f]{6}$') &&
+        data.isDefault is bool &&
+        data.createdAt is timestamp;
+    }
+
+    function isValidTransaction(data) {
+      return data.keys().hasAll([
+          'id', 'userId', 'type', 'title', 'description',
+          'amount', 'currency', 'categoryId', 'categoryName',
+          'date', 'paymentMethod', 'createdAt', 'updatedAt'
+        ]) &&
+        data.keys().hasOnly([
+          'id', 'userId', 'type', 'title', 'description',
+          'amount', 'currency', 'categoryId', 'categoryName',
+          'date', 'paymentMethod', 'notes', 'createdAt', 'updatedAt'
+        ]) &&
+        isValidId(data.id) &&
+        isValidId(data.userId) &&
+        data.userId == request.auth.uid &&
+        isValidTxType(data.type) &&
+        data.title is string && data.title.size() >= 1 && data.title.size() <= 120 &&
+        data.description is string && data.description.size() <= 500 &&
+        data.amount is number && data.amount > 0 && data.amount <= 1000000000000 &&
+        isValidCurrency(data.currency) &&
+        isValidId(data.categoryId) &&
+        data.categoryName is string && data.categoryName.size() >= 1 && data.categoryName.size() <= 60 &&
+        isValidIsoDate(data.date) &&
+        isValidPaymentMethod(data.paymentMethod) &&
+        (!('notes' in data) || (data.notes is string && data.notes.size() <= 1000)) &&
+        data.createdAt is timestamp &&
+        data.updatedAt is timestamp;
+    }
+
+    function isValidBudget(data) {
+      return data.keys().hasAll([
+          'id', 'userId', 'name', 'categoryId', 'categoryName',
+          'amount', 'currency', 'period', 'month', 'year', 'createdAt', 'updatedAt'
+        ]) &&
+        data.keys().hasOnly([
+          'id', 'userId', 'name', 'categoryId', 'categoryName',
+          'amount', 'currency', 'period', 'month', 'year', 'createdAt', 'updatedAt'
+        ]) &&
+        isValidId(data.id) &&
+        isValidId(data.userId) &&
+        data.userId == request.auth.uid &&
+        data.name is string && data.name.size() >= 1 && data.name.size() <= 100 &&
+        isValidId(data.categoryId) &&
+        data.categoryName is string && data.categoryName.size() >= 1 && data.categoryName.size() <= 60 &&
+        data.amount is number && data.amount > 0 && data.amount <= 1000000000000 &&
+        isValidCurrency(data.currency) &&
+        data.period is string && data.period == 'monthly' &&
+        data.month is int && data.month >= 1 && data.month <= 12 &&
+        data.year is int && data.year >= 2000 && data.year <= 2100 &&
+        data.createdAt is timestamp &&
+        data.updatedAt is timestamp;
+    }
+
+    function isValidExchangeRate(data) {
+      return data.keys().hasAll([
+          'id', 'userId', 'baseCurrency', 'targetCurrency',
+          'rate', 'effectiveDate', 'source', 'updatedAt'
+        ]) &&
+        data.keys().hasOnly([
+          'id', 'userId', 'baseCurrency', 'targetCurrency',
+          'rate', 'effectiveDate', 'source', 'updatedAt'
+        ]) &&
+        isValidId(data.id) &&
+        isValidId(data.userId) &&
+        data.userId == request.auth.uid &&
+        isValidCurrency(data.baseCurrency) &&
+        isValidCurrency(data.targetCurrency) &&
+        data.rate is number && data.rate > 0 && data.rate <= 1000000000 &&
+        isValidIsoDate(data.effectiveDate) &&
+        data.source is string && data.source in ['api', 'manual'] &&
+        data.updatedAt is timestamp;
+    }
+
+    function ownsCategoryWithType(categoryId, expectedType) {
+      return exists(/databases/$(database)/documents/categories/$(categoryId)) &&
+        get(/databases/$(database)/documents/categories/$(categoryId)).data.userId == request.auth.uid &&
+        get(/databases/$(database)/documents/categories/$(categoryId)).data.type == expectedType;
+    }
+
+    // --- Collection Rules ---
+    match /users/{userId} {
+      allow get: if isSignedIn() && isValidId(userId) && request.auth.uid == userId;
+      allow list: if false;
+      allow create: if isSignedIn() && isValidId(userId) &&
+        isValidUser(incoming(), userId) &&
+        incoming().createdAt == request.time &&
+        incoming().updatedAt == request.time;
+      allow update: if isSignedIn() && isValidId(userId) &&
+        isValidUser(incoming(), userId) &&
+        existing().uid == request.auth.uid &&
+        incoming().uid == existing().uid &&
+        incoming().email == existing().email &&
+        incoming().createdAt == existing().createdAt &&
+        incoming().updatedAt == request.time &&
+        (
+          incoming().diff(existing()).affectedKeys().hasOnly(['fullName', 'photoURL', 'defaultCurrency', 'preferences', 'updatedAt'])
+        );
+      allow delete: if false;
+    }
+
+    match /categories/{categoryId} {
+      allow get: if isSignedIn() && isValidId(categoryId) && existing().userId == request.auth.uid;
+      allow list: if isSignedIn() && existing().userId == request.auth.uid;
+      allow create: if isSignedIn() && isValidId(categoryId) &&
+        isValidCategory(incoming()) &&
+        incoming().id == categoryId &&
+        incoming().createdAt == request.time;
+      allow update: if isSignedIn() && isValidId(categoryId) &&
+        isValidCategory(incoming()) &&
+        existing().userId == request.auth.uid &&
+        incoming().userId == existing().userId &&
+        incoming().id == existing().id &&
+        incoming().type == existing().type &&
+        incoming().isDefault == existing().isDefault &&
+        incoming().createdAt == existing().createdAt &&
+        (
+          incoming().diff(existing()).affectedKeys().hasOnly(['name', 'icon', 'color'])
+        );
+      allow delete: if isSignedIn() && isValidId(categoryId) && existing().userId == request.auth.uid;
+    }
+
+    match /transactions/{transactionId} {
+      allow get: if isSignedIn() && isValidId(transactionId) && existing().userId == request.auth.uid;
+      allow list: if isSignedIn() && existing().userId == request.auth.uid;
+      allow create: if isSignedIn() && isValidId(transactionId) &&
+        isValidTransaction(incoming()) &&
+        incoming().id == transactionId &&
+        incoming().createdAt == request.time &&
+        incoming().updatedAt == request.time &&
+        ownsCategoryWithType(incoming().categoryId, incoming().type);
+      allow update: if isSignedIn() && isValidId(transactionId) &&
+        isValidTransaction(incoming()) &&
+        existing().userId == request.auth.uid &&
+        incoming().userId == existing().userId &&
+        incoming().id == existing().id &&
+        incoming().createdAt == existing().createdAt &&
+        incoming().updatedAt == request.time &&
+        ownsCategoryWithType(incoming().categoryId, incoming().type) &&
+        (
+          incoming().diff(existing()).affectedKeys().hasOnly([
+            'type', 'title', 'description', 'amount', 'currency',
+            'categoryId', 'categoryName', 'date', 'paymentMethod', 'notes', 'updatedAt'
+          ])
+        );
+      allow delete: if isSignedIn() && isValidId(transactionId) && existing().userId == request.auth.uid;
+    }
+
+    match /budgets/{budgetId} {
+      allow get: if isSignedIn() && isValidId(budgetId) && existing().userId == request.auth.uid;
+      allow list: if isSignedIn() && existing().userId == request.auth.uid;
+      allow create: if isSignedIn() && isValidId(budgetId) &&
+        isValidBudget(incoming()) &&
+        incoming().id == budgetId &&
+        incoming().createdAt == request.time &&
+        incoming().updatedAt == request.time &&
+        ownsCategoryWithType(incoming().categoryId, 'expense');
+      allow update: if isSignedIn() && isValidId(budgetId) &&
+        isValidBudget(incoming()) &&
+        existing().userId == request.auth.uid &&
+        incoming().userId == existing().userId &&
+        incoming().id == existing().id &&
+        incoming().period == existing().period &&
+        incoming().createdAt == existing().createdAt &&
+        incoming().updatedAt == request.time &&
+        ownsCategoryWithType(incoming().categoryId, 'expense') &&
+        (
+          incoming().diff(existing()).affectedKeys().hasOnly([
+            'name', 'categoryId', 'categoryName', 'amount', 'currency', 'month', 'year', 'updatedAt'
+          ])
+        );
+      allow delete: if isSignedIn() && isValidId(budgetId) && existing().userId == request.auth.uid;
+    }
+
+    match /exchangeRates/{rateId} {
+      allow get: if isSignedIn() && isValidId(rateId) && existing().userId == request.auth.uid;
+      allow list: if isSignedIn() && existing().userId == request.auth.uid;
+      allow create: if isSignedIn() && isValidId(rateId) &&
+        isValidExchangeRate(incoming()) &&
+        incoming().id == rateId &&
+        incoming().updatedAt == request.time;
+      allow update: if isSignedIn() && isValidId(rateId) &&
+        isValidExchangeRate(incoming()) &&
+        existing().userId == request.auth.uid &&
+        incoming().userId == existing().userId &&
+        incoming().id == existing().id &&
+        incoming().updatedAt == request.time &&
+        (
+          incoming().diff(existing()).affectedKeys().hasOnly([
+            'baseCurrency', 'targetCurrency', 'rate', 'effectiveDate', 'source', 'updatedAt'
+          ])
+        );
+      allow delete: if isSignedIn() && isValidId(rateId) && existing().userId == request.auth.uid;
+    }
+  }
+}

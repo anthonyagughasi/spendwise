@@ -1,0 +1,6 @@
+{
+  "name": "SpendWise",
+  "description": "Production-ready personal finance management application for tracking income, expenses, budgets, multi-currency balances, and financial analytics.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
