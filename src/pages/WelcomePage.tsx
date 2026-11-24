@@ -71,22 +71,22 @@ export function WelcomePage() {
       </header>
 
       {/* Main Welcome & Preview Stage */}
-      <main className="relative z-10 flex-1 w-full max-w-[1360px] mx-auto px-5 sm:px-8 lg:px-10 pt-2 pb-10 sm:py-8 lg:py-10 flex items-center">
-        <div className="w-full grid grid-cols-1 lg:grid-cols-12 gap-y-6 lg:gap-y-7 lg:gap-x-10 items-start">
+      <main className="relative z-10 flex-1 w-full max-w-[1360px] mx-auto px-5 sm:px-8 lg:px-10 pt-4 pb-12 sm:py-10 lg:py-12 flex items-center">
+        <div className="w-full grid grid-cols-1 lg:grid-cols-12 gap-y-7 lg:gap-y-8 lg:gap-x-12 items-start">
           {/* Welcome Copy & Desktop Actions */}
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-            className="order-1 lg:col-span-5 lg:col-start-1 lg:row-start-1 lg:self-end space-y-5"
+            className="order-1 lg:col-span-5 lg:col-start-1 lg:row-start-1 lg:self-end space-y-6"
           >
-            <div className="space-y-3.5">
-              <h1 className="font-display text-[2rem] sm:text-[2.6rem] lg:text-[2.95rem] font-bold tracking-tight leading-[1.08] text-[#F4F5F8] text-balance">
-                Your Finances. All in One Place.
+            <div className="space-y-4">
+              <h1 className="font-display text-[2rem] sm:text-[2.55rem] lg:text-[2.85rem] font-bold tracking-tight leading-[1.08] text-[#F4F5F8] text-balance">
+                Take Control of Every Naira, Dollar &amp; Pound.
               </h1>
               <p className="text-[15px] sm:text-base text-[#9299A8] leading-relaxed max-w-lg">
-                Take control of your money with smarter expense tracking, budgeting and
-                multi-currency financial management.
+                Track your spending, manage budgets and understand your financial health across
+                multiple currencies — all from one place.
               </p>
             </div>
 

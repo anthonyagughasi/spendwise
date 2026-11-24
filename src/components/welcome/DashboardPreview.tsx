@@ -16,8 +16,24 @@ import {
   TrendingDown,
 } from 'lucide-react';
 import { CategoryIcon } from '@/src/components/ui/category-icon';
+import { SUPPORTED_CURRENCIES } from '@/src/constants/finance';
 import { formatCompactCurrency, formatCurrency } from '@/src/lib/utils/format';
 import type { CurrencyCode } from '@/src/types/finance';
+
+function formatPreviewKpi(amount: number, currency: CurrencyCode): string {
+  const cfg = SUPPORTED_CURRENCIES.find((c) => c.code === currency) ?? SUPPORTED_CURRENCIES[0];
+  const isWhole = Number.isInteger(amount);
+  try {
+    return new Intl.NumberFormat(cfg.locale, {
+      style: 'currency',
+      currency: cfg.code,
+      minimumFractionDigits: isWhole ? 0 : 2,
+      maximumFractionDigits: 2,
+    }).format(amount);
+  } catch {
+    return `${cfg.symbol}${isWhole ? amount.toLocaleString() : amount.toFixed(2)}`;
+  }
+}
 
 interface SampleCurrencyDataset {
   balance: number;
@@ -59,24 +75,24 @@ const SAMPLE_DATASETS: Record<CurrencyCode, SampleCurrencyDataset> = {
     ],
   },
   NGN: {
-    balance: 38450000,
-    income: 10620000,
-    expenses: 5302000,
+    balance: 2450000,
+    income: 850000,
+    expenses: 425000,
     incomeDelta: '12.4%',
     expenseDelta: '4.8%',
-    savingsRate: 50.1,
+    savingsRate: 50,
     series: [
-      { label: 'Jun', income: 9150000, expenses: 5650000 },
-      { label: 'Jul', income: 9520000, expenses: 5920000 },
-      { label: 'Aug', income: 9450000, expenses: 5410000 },
-      { label: 'Sep', income: 9980000, expenses: 5750000 },
-      { label: 'Oct', income: 9440000, expenses: 5560000 },
-      { label: 'Nov', income: 10620000, expenses: 5302000 },
+      { label: 'Jun', income: 720000, expenses: 465000 },
+      { label: 'Jul', income: 760000, expenses: 480000 },
+      { label: 'Aug', income: 745000, expenses: 440000 },
+      { label: 'Sep', income: 790000, expenses: 455000 },
+      { label: 'Oct', income: 755000, expenses: 446000 },
+      { label: 'Nov', income: 850000, expenses: 425000 },
     ],
     budgets: [
-      { name: 'Housing & Utilities', spent: 2550000, limit: 3400000, percentage: 75, color: '#27C98A' },
-      { name: 'Food & Dining', spent: 1040000, limit: 1240000, percentage: 84, color: '#E5A93B' },
-      { name: 'Transport & Travel', spent: 450000, limit: 1000000, percentage: 45, color: '#27C98A' },
+      { name: 'Housing & Utilities', spent: 225000, limit: 300000, percentage: 75, color: '#27C98A' },
+      { name: 'Food & Dining', spent: 126000, limit: 150000, percentage: 84, color: '#E5A93B' },
+      { name: 'Transport & Travel', spent: 74000, limit: 165000, percentage: 45, color: '#27C98A' },
     ],
   },
   GBP: {
@@ -152,10 +168,10 @@ const SAMPLE_TRANSACTIONS: Array<{
   },
 ];
 
-const CURRENCY_OPTIONS: CurrencyCode[] = ['USD', 'NGN', 'GBP'];
+const CURRENCY_OPTIONS: CurrencyCode[] = ['NGN', 'USD', 'GBP'];
 
 export function DashboardPreview() {
-  const [currency, setCurrency] = useState<CurrencyCode>('USD');
+  const [currency, setCurrency] = useState<CurrencyCode>('NGN');
   const dataset = useMemo(() => SAMPLE_DATASETS[currency], [currency]);
 
   return (
@@ -168,7 +184,7 @@ export function DashboardPreview() {
         <div className="min-w-0">
           <p className="text-xs font-medium text-[#F4F5F8] truncate">Financial Overview</p>
           <p className="text-[11px] text-[#9299A8] truncate">
-            Sample workspace · Multi-currency consolidated view
+            Sample data · Fictional multi-currency preview
           </p>
         </div>
 
@@ -207,7 +223,7 @@ export function DashboardPreview() {
               <Wallet className="w-3.5 h-3.5 text-[#8B7CFF]" aria-hidden="true" />
             </div>
             <p className="mt-1.5 text-lg sm:text-xl font-bold font-mono-num text-[#F4F5F8] tracking-tight truncate">
-              {formatCurrency(dataset.balance, currency)}
+              {formatPreviewKpi(dataset.balance, currency)}
             </p>
             <p className="mt-1 text-[11px] text-[#9299A8] font-mono-num">
               {dataset.savingsRate}% net savings rate
@@ -220,7 +236,7 @@ export function DashboardPreview() {
               <TrendingUp className="w-3.5 h-3.5 text-[#27C98A]" aria-hidden="true" />
             </div>
             <p className="mt-1.5 text-lg sm:text-xl font-bold font-mono-num text-[#27C98A] tracking-tight truncate">
-              {formatCurrency(dataset.income, currency)}
+              {formatPreviewKpi(dataset.income, currency)}
             </p>
             <p className="mt-1 inline-flex items-center gap-0.5 text-[11px] font-mono-num text-[#27C98A]">
               <ArrowUpRight className="w-3 h-3" aria-hidden="true" />
@@ -234,7 +250,7 @@ export function DashboardPreview() {
               <TrendingDown className="w-3.5 h-3.5 text-[#F06464]" aria-hidden="true" />
             </div>
             <p className="mt-1.5 text-lg sm:text-xl font-bold font-mono-num text-[#F06464] tracking-tight truncate">
-              {formatCurrency(dataset.expenses, currency)}
+              {formatPreviewKpi(dataset.expenses, currency)}
             </p>
             <p className="mt-1 inline-flex items-center gap-0.5 text-[11px] font-mono-num text-[#27C98A]">
               <ArrowDownRight className="w-3 h-3" aria-hidden="true" />
