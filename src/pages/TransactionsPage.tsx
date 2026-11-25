@@ -20,9 +20,8 @@ import { Skeleton } from '@/src/components/ui/skeleton';
 import { CategoryIcon } from '@/src/components/ui/category-icon';
 import { TransactionModal } from '@/src/components/transactions/TransactionModal';
 import { CURRENCY_CODES, PAYMENT_METHODS } from '@/src/constants/finance';
-import { useAuth } from '@/src/hooks/useAuth';
+import { useWorkspaceAuth } from '@/src/hooks/useDemo';
 import { useFinanceData } from '@/src/hooks/useFinanceData';
-import { deleteTransaction } from '@/src/lib/services/firestoreService';
 import { exportTransactionsToCsv } from '@/src/lib/services/csvService';
 import { formatCurrency, formatUserDate } from '@/src/lib/utils/format';
 import type { Transaction } from '@/src/types/finance';
@@ -31,8 +30,8 @@ type SortField = 'date' | 'amount' | 'title';
 type SortDirection = 'asc' | 'desc';
 
 export function TransactionsPage() {
-  const { profile } = useAuth();
-  const { transactions, categories, loading } = useFinanceData();
+  const { profile } = useWorkspaceAuth();
+  const { transactions, categories, loading, removeTransaction } = useFinanceData();
 
   const dateFormat = profile?.preferences?.dateFormat ?? 'MMM dd, yyyy';
 
@@ -139,7 +138,7 @@ export function TransactionsPage() {
     if (!deletingTx) return;
     setIsDeleting(true);
     try {
-      await deleteTransaction(deletingTx.id);
+      await removeTransaction(deletingTx.id);
       toast.success('Transaction deleted.');
       setDeletingTx(null);
     } catch (err) {

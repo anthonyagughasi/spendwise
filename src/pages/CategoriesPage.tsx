@@ -12,18 +12,21 @@ import { Skeleton } from '@/src/components/ui/skeleton';
 import { CategoryIcon } from '@/src/components/ui/category-icon';
 import { CATEGORY_COLOR_SWATCHES, CATEGORY_ICON_OPTIONS } from '@/src/constants/finance';
 import { categorySchema, type CategoryFormValues } from '@/src/lib/validations/schemas';
-import {
-  createCategory,
-  deleteCategoryWithReassignment,
-  updateCategory,
-} from '@/src/lib/services/firestoreService';
-import { useAuth } from '@/src/hooks/useAuth';
+import { useWorkspaceAuth } from '@/src/hooks/useDemo';
 import { useFinanceData } from '@/src/hooks/useFinanceData';
 import type { Category, TransactionType } from '@/src/types/finance';
 
 export function CategoriesPage() {
-  const { user } = useAuth();
-  const { categories, transactions, budgets, loading } = useFinanceData();
+  const { userId } = useWorkspaceAuth();
+  const {
+    categories,
+    transactions,
+    budgets,
+    loading,
+    addCategory,
+    editCategory,
+    removeCategory,
+  } = useFinanceData();
 
   const [typeTab, setTypeTab] = useState<'all' | TransactionType>('all');
   const [modalOpen, setModalOpen] = useState(false);
@@ -105,7 +108,7 @@ export function CategoriesPage() {
   };
 
   const onSubmit = async (values: CategoryFormValues) => {
-    if (!user) return;
+    if (!userId) return;
     const duplicate = categories.find(
       (c) =>
         c.id !== editingCat?.id &&
@@ -119,14 +122,14 @@ export function CategoriesPage() {
 
     try {
       if (editingCat) {
-        await updateCategory(editingCat.id, {
+        await editCategory(editingCat.id, {
           name: values.name,
           icon: values.icon,
           color: values.color,
         });
         toast.success('Category updated.');
       } else {
-        await createCategory(user.uid, values);
+        await addCategory(values);
         toast.success('Category created.');
       }
       setModalOpen(false);
@@ -151,7 +154,7 @@ export function CategoriesPage() {
 
     setIsDeleting(true);
     try {
-      await deleteCategoryWithReassignment(
+      await removeCategory(
         deleteTarget,
         replacement,
         affectedTxs,

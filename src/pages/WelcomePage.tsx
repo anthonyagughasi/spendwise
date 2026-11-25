@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'motion/react';
 import {
   ArrowLeftRight,
@@ -8,6 +8,7 @@ import {
   PiggyBank,
 } from 'lucide-react';
 import { DashboardPreview } from '@/src/components/welcome/DashboardPreview';
+import { useDemo } from '@/src/hooks/useDemo';
 
 const CORE_CAPABILITIES = [
   {
@@ -33,6 +34,14 @@ const CORE_CAPABILITIES = [
 ];
 
 export function WelcomePage() {
+  const navigate = useNavigate();
+  const { enterDemo } = useDemo();
+
+  const handleExploreDemo = () => {
+    enterDemo();
+    navigate('/dashboard');
+  };
+
   return (
     <div className="min-h-screen bg-[#0B0D12] text-[#F4F5F8] relative overflow-x-hidden flex flex-col">
       {/* Subtle ambient fintech gradient backdrop */}
@@ -91,21 +100,24 @@ export function WelcomePage() {
             </div>
 
             <div className="hidden lg:flex flex-col items-start gap-3 pt-1">
-              <Link
-                to="/signup"
-                className="inline-flex items-center justify-center gap-2 h-11 px-6 rounded-xl bg-[#8B7CFF] hover:bg-[#7A6AF8] text-[#0B0D12] text-sm font-semibold transition-colors whitespace-nowrap shrink-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#8B7CFF]/60"
-              >
-                Get Started Free
-                <ArrowRight className="w-4 h-4" aria-hidden="true" />
-              </Link>
-              <p className="text-xs text-[#9299A8]">
-                Already have an account?{' '}
+              <div className="flex flex-wrap items-center gap-3">
+                <button
+                  type="button"
+                  onClick={handleExploreDemo}
+                  className="inline-flex items-center justify-center gap-2 h-11 px-5 rounded-xl bg-[#8B7CFF] hover:bg-[#7A6AF8] text-[#0B0D12] text-sm font-semibold transition-colors whitespace-nowrap shrink-0 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-[#8B7CFF]/60"
+                >
+                  Explore Interactive Demo
+                  <ArrowRight className="w-4 h-4" aria-hidden="true" />
+                </button>
                 <Link
                   to="/login"
-                  className="text-[#8B7CFF] font-medium hover:underline underline-offset-4"
+                  className="inline-flex items-center justify-center h-11 px-5 rounded-xl bg-[#151923] hover:bg-[#1B202B] border border-[#282E3B] text-[#F4F5F8] text-sm font-medium transition-colors whitespace-nowrap shrink-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#8B7CFF]/60"
                 >
-                  Sign In
+                  Sign In / Create Account
                 </Link>
+              </div>
+              <p className="text-xs text-[#9299A8] leading-relaxed">
+                Explore SpendWise and experience its features without creating an account.
               </p>
             </div>
           </motion.div>
@@ -152,21 +164,22 @@ export function WelcomePage() {
 
           {/* Mobile Onboarding Bottom Actions */}
           <div className="order-4 lg:hidden flex flex-col items-stretch gap-3 pt-1">
-            <Link
-              to="/signup"
-              className="inline-flex items-center justify-center gap-2 h-12 px-6 rounded-xl bg-[#8B7CFF] hover:bg-[#7A6AF8] text-[#0B0D12] text-sm font-semibold transition-colors whitespace-nowrap focus:outline-none focus-visible:ring-2 focus-visible:ring-[#8B7CFF]/60"
+            <button
+              type="button"
+              onClick={handleExploreDemo}
+              className="inline-flex items-center justify-center gap-2 h-12 px-6 rounded-xl bg-[#8B7CFF] hover:bg-[#7A6AF8] text-[#0B0D12] text-sm font-semibold transition-colors whitespace-nowrap cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-[#8B7CFF]/60"
             >
-              Get Started Free
+              Explore Interactive Demo
               <ArrowRight className="w-4 h-4" aria-hidden="true" />
+            </button>
+            <Link
+              to="/login"
+              className="inline-flex items-center justify-center h-12 px-6 rounded-xl bg-[#151923] hover:bg-[#1B202B] border border-[#282E3B] text-[#F4F5F8] text-sm font-medium transition-colors whitespace-nowrap focus:outline-none focus-visible:ring-2 focus-visible:ring-[#8B7CFF]/60"
+            >
+              Sign In / Create Account
             </Link>
-            <p className="text-center text-xs text-[#9299A8]">
-              Already have an account?{' '}
-              <Link
-                to="/login"
-                className="text-[#8B7CFF] font-medium hover:underline underline-offset-4"
-              >
-                Sign In
-              </Link>
+            <p className="text-center text-xs text-[#9299A8] leading-relaxed">
+              Explore SpendWise and experience its features without creating an account.
             </p>
           </div>
         </div>

@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import {
   ResponsiveContainer,
   BarChart,
@@ -25,7 +25,7 @@ import { Input, Label, Select } from '@/src/components/ui/input';
 import { EmptyState } from '@/src/components/ui/empty-state';
 import { Skeleton } from '@/src/components/ui/skeleton';
 import { CURRENCY_CODES } from '@/src/constants/finance';
-import { useAuth } from '@/src/hooks/useAuth';
+import { useWorkspaceAuth } from '@/src/hooks/useDemo';
 import { useFinanceData } from '@/src/hooks/useFinanceData';
 import {
   computeBudgetsProgress,
@@ -40,12 +40,16 @@ import { formatCompactCurrency, formatCurrency, getTodayIso } from '@/src/lib/ut
 import type { CurrencyCode, ReportPeriodPreset } from '@/src/types/finance';
 
 export function ReportsPage() {
-  const { profile } = useAuth();
+  const { profile } = useWorkspaceAuth();
   const { transactions, categories, budgets, rateMap, loading } = useFinanceData();
 
   const defaultReporting = profile?.preferences?.reportingCurrency ?? profile?.defaultCurrency ?? 'NGN';
   const [period, setPeriod] = useState<ReportPeriodPreset>('yearly');
   const [reportingCurrency, setReportingCurrency] = useState<CurrencyCode>(defaultReporting);
+
+  useEffect(() => {
+    setReportingCurrency(defaultReporting);
+  }, [defaultReporting]);
   const [customStart, setCustomStart] = useState(() => `${new Date().getFullYear()}-01-01`);
   const [customEnd, setCustomEnd] = useState(getTodayIso);
 

@@ -7,9 +7,8 @@ import { Button } from '@/src/components/ui/button';
 import { FieldError, Input, Label, Select } from '@/src/components/ui/input';
 import { CURRENCY_CODES } from '@/src/constants/finance';
 import { manualRateSchema, type ManualRateFormValues } from '@/src/lib/validations/schemas';
-import { upsertExchangeRate } from '@/src/lib/services/firestoreService';
 import { getTodayIso } from '@/src/lib/utils/format';
-import { useAuth } from '@/src/hooks/useAuth';
+import { useWorkspaceAuth } from '@/src/hooks/useDemo';
 import { useFinanceData } from '@/src/hooks/useFinanceData';
 
 interface ExchangeRateModalProps {
@@ -18,8 +17,8 @@ interface ExchangeRateModalProps {
 }
 
 export function ExchangeRateModal({ open, onClose }: ExchangeRateModalProps) {
-  const { user } = useAuth();
-  const { exchangeRates, syncRates, syncingRates } = useFinanceData();
+  const { userId } = useWorkspaceAuth();
+  const { exchangeRates, syncRates, syncingRates, saveManualRatePair } = useFinanceData();
 
   const {
     register,
@@ -49,28 +48,18 @@ export function ExchangeRateModal({ open, onClose }: ExchangeRateModalProps) {
   };
 
   const onSubmit = async (values: ManualRateFormValues) => {
-    if (!user) return;
+    if (!userId) return;
     if (values.baseCurrency === values.targetCurrency) {
       toast.error('Base and target currencies must be different.');
       return;
     }
 
     try {
-      await upsertExchangeRate(
-        user.uid,
+      await saveManualRatePair(
         values.baseCurrency,
         values.targetCurrency,
         values.rate,
-        values.effectiveDate,
-        'manual'
-      );
-      await upsertExchangeRate(
-        user.uid,
-        values.targetCurrency,
-        values.baseCurrency,
-        Number((1 / values.rate).toFixed(8)),
-        values.effectiveDate,
-        'manual'
+        values.effectiveDate
       );
       toast.success(`Manual rate saved: 1 ${values.baseCurrency} = ${values.rate} ${values.targetCurrency}`);
     } catch (err) {

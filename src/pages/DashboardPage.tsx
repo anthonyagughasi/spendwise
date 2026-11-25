@@ -31,7 +31,7 @@ import { DashboardSkeleton } from '@/src/components/ui/skeleton';
 import { CategoryIcon } from '@/src/components/ui/category-icon';
 import { TransactionModal } from '@/src/components/transactions/TransactionModal';
 import { ExchangeRateModal } from '@/src/components/settings/ExchangeRateModal';
-import { useAuth } from '@/src/hooks/useAuth';
+import { useWorkspaceAuth } from '@/src/hooks/useDemo';
 import { useFinanceData } from '@/src/hooks/useFinanceData';
 import {
   computeBudgetsProgress,
@@ -52,7 +52,7 @@ import type { DashboardDatePreset } from '@/src/types/finance';
 
 export function DashboardPage() {
   const navigate = useNavigate();
-  const { profile } = useAuth();
+  const { profile } = useWorkspaceAuth();
   const { transactions, categories, budgets, rateMap, loading } = useFinanceData();
 
   const [preset, setPreset] = useState<DashboardDatePreset>('this_month');

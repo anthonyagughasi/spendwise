@@ -4,11 +4,8 @@ import { toast } from 'sonner';
 import { Button } from '@/src/components/ui/button';
 import { ConfirmDialog } from '@/src/components/ui/confirm-dialog';
 import { UserAvatar } from '@/src/components/ui/user-avatar';
-import {
-  removeProfilePicture,
-  uploadProfilePicture,
-  validateProfileImageFile,
-} from '@/src/lib/services/storageService';
+import { validateProfileImageFile } from '@/src/lib/services/storageService';
+import { useFinanceData } from '@/src/hooks/useFinanceData';
 import { cn } from '@/src/lib/utils/format';
 
 interface ProfilePictureUploadProps {
@@ -18,10 +15,11 @@ interface ProfilePictureUploadProps {
 }
 
 export function ProfilePictureUpload({
-  userId,
+  userId: _userId,
   displayName,
   currentPhotoUrl,
 }: ProfilePictureUploadProps) {
+  const { uploadWorkspaceAvatar, removeWorkspaceAvatar } = useFinanceData();
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const uploadAbortRef = useRef<AbortController | null>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -108,8 +106,7 @@ export function ProfilePictureUpload({
     setUploadProgress(0);
 
     try {
-      await uploadProfilePicture(
-        userId,
+      await uploadWorkspaceAvatar(
         selectedFile,
         (percent) => {
           setUploadProgress(percent);
@@ -148,7 +145,7 @@ export function ProfilePictureUpload({
     setRemoving(true);
 
     try {
-      await removeProfilePicture(userId);
+      await removeWorkspaceAvatar();
       resetPendingSelection();
       setConfirmRemoveOpen(false);
       toast.success('Profile picture removed.');

@@ -7,9 +7,8 @@ import { Button } from '@/src/components/ui/button';
 import { FieldError, Input, Label, Select, Textarea } from '@/src/components/ui/input';
 import { CURRENCY_CODES, PAYMENT_METHODS, SUPPORTED_CURRENCIES } from '@/src/constants/finance';
 import { transactionSchema, type TransactionFormValues } from '@/src/lib/validations/schemas';
-import { createTransaction, updateTransaction } from '@/src/lib/services/firestoreService';
 import { getTodayIso } from '@/src/lib/utils/format';
-import { useAuth } from '@/src/hooks/useAuth';
+import { useWorkspaceAuth } from '@/src/hooks/useDemo';
 import { useFinanceData } from '@/src/hooks/useFinanceData';
 import type { Transaction } from '@/src/types/finance';
 
@@ -24,8 +23,8 @@ export function TransactionModal({
   onClose,
   editingTransaction,
 }: TransactionModalProps) {
-  const { user, profile } = useAuth();
-  const { categories } = useFinanceData();
+  const { userId, profile } = useWorkspaceAuth();
+  const { categories, addTransaction, editTransaction } = useFinanceData();
 
   const defaultCurrency = profile?.defaultCurrency ?? 'NGN';
 
@@ -94,7 +93,7 @@ export function TransactionModal({
   }, [selectedType, filteredCategories, setValue, watch]);
 
   const onSubmit = async (values: TransactionFormValues) => {
-    if (!user) return;
+    if (!userId) return;
     const category = categories.find((c) => c.id === values.categoryId && c.type === values.type);
     if (!category) {
       toast.error('Please select a valid category matching the transaction type.');
@@ -103,10 +102,10 @@ export function TransactionModal({
 
     try {
       if (editingTransaction) {
-        await updateTransaction(editingTransaction.id, values, category);
+        await editTransaction(editingTransaction.id, values, category);
         toast.success('Transaction updated.');
       } else {
-        await createTransaction(user.uid, values, category);
+        await addTransaction(values, category);
         toast.success('Transaction recorded.');
       }
       onClose();

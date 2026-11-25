@@ -21,10 +21,9 @@ import { Skeleton } from '@/src/components/ui/skeleton';
 import { CategoryIcon } from '@/src/components/ui/category-icon';
 import { CURRENCY_CODES } from '@/src/constants/finance';
 import { budgetSchema, type BudgetFormValues } from '@/src/lib/validations/schemas';
-import { createBudget, deleteBudget, updateBudget } from '@/src/lib/services/firestoreService';
 import { computeBudgetsProgress } from '@/src/lib/calculations/finance';
 import { formatCurrency, getMonthLabel } from '@/src/lib/utils/format';
-import { useAuth } from '@/src/hooks/useAuth';
+import { useWorkspaceAuth } from '@/src/hooks/useDemo';
 import { useFinanceData } from '@/src/hooks/useFinanceData';
 import type { Budget, BudgetStatus } from '@/src/types/finance';
 
@@ -73,8 +72,16 @@ function StatusIndicator({ status }: { status: BudgetStatus }) {
 }
 
 export function BudgetsPage() {
-  const { user, profile } = useAuth();
-  const { budgets, categories, transactions, loading } = useFinanceData();
+  const { userId, profile } = useWorkspaceAuth();
+  const {
+    budgets,
+    categories,
+    transactions,
+    loading,
+    addBudget,
+    editBudget,
+    removeBudget,
+  } = useFinanceData();
 
   const now = new Date();
   const [selectedMonth, setSelectedMonth] = useState(now.getMonth() + 1);
@@ -148,7 +155,7 @@ export function BudgetsPage() {
   }, [modalOpen, editingBudget, expenseCategories, defaultCurrency, selectedMonth, selectedYear, reset]);
 
   const onSubmit = async (values: BudgetFormValues) => {
-    if (!user) return;
+    if (!userId) return;
     const category = expenseCategories.find((c) => c.id === values.categoryId);
     if (!category) {
       toast.error('Please select a valid expense category.');
@@ -176,10 +183,10 @@ export function BudgetsPage() {
 
     try {
       if (editingBudget) {
-        await updateBudget(editingBudget.id, values, category);
+        await editBudget(editingBudget.id, values, category);
         toast.success('Budget updated.');
       } else {
-        await createBudget(user.uid, values, category);
+        await addBudget(values, category);
         toast.success('Monthly budget created.');
       }
       setModalOpen(false);
@@ -193,7 +200,7 @@ export function BudgetsPage() {
     if (!deletingBudget) return;
     setIsDeleting(true);
     try {
-      await deleteBudget(deletingBudget.id);
+      await removeBudget(deletingBudget.id);
       toast.success('Budget deleted.');
       setDeletingBudget(null);
     } catch (err) {

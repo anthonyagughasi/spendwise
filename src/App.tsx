@@ -2,6 +2,7 @@ import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import { Toaster } from 'sonner';
 import { ErrorBoundary } from '@/src/components/ui/error-boundary';
 import { AuthProvider } from '@/src/hooks/useAuth';
+import { DemoProvider } from '@/src/hooks/useDemo';
 import { FinanceDataProvider } from '@/src/hooks/useFinanceData';
 import { ProtectedRoute, PublicOnlyRoute } from '@/src/components/layout/RouteGuards';
 import { AppShell } from '@/src/components/layout/AppShell';
@@ -20,129 +21,131 @@ export default function App() {
   return (
     <ErrorBoundary>
       <AuthProvider>
-        <FinanceDataProvider>
-          <BrowserRouter>
-            <Routes>
-              {/* Public Authentication Routes */}
-              <Route
-                path="/login"
-                element={
-                  <PublicOnlyRoute>
-                    <LoginPage />
-                  </PublicOnlyRoute>
-                }
-              />
-              <Route
-                path="/register"
-                element={
-                  <PublicOnlyRoute>
-                    <RegisterPage />
-                  </PublicOnlyRoute>
-                }
-              />
-              <Route
-                path="/signup"
-                element={
-                  <PublicOnlyRoute>
-                    <RegisterPage />
-                  </PublicOnlyRoute>
-                }
-              />
-              <Route
-                path="/forgot-password"
-                element={
-                  <PublicOnlyRoute>
-                    <ForgotPasswordPage />
-                  </PublicOnlyRoute>
-                }
-              />
+        <DemoProvider>
+          <FinanceDataProvider>
+            <BrowserRouter>
+              <Routes>
+                {/* Public Authentication Routes */}
+                <Route
+                  path="/login"
+                  element={
+                    <PublicOnlyRoute>
+                      <LoginPage />
+                    </PublicOnlyRoute>
+                  }
+                />
+                <Route
+                  path="/register"
+                  element={
+                    <PublicOnlyRoute>
+                      <RegisterPage />
+                    </PublicOnlyRoute>
+                  }
+                />
+                <Route
+                  path="/signup"
+                  element={
+                    <PublicOnlyRoute>
+                      <RegisterPage />
+                    </PublicOnlyRoute>
+                  }
+                />
+                <Route
+                  path="/forgot-password"
+                  element={
+                    <PublicOnlyRoute>
+                      <ForgotPasswordPage />
+                    </PublicOnlyRoute>
+                  }
+                />
 
-              {/* Protected Application Routes */}
-              <Route
-                path="/dashboard"
-                element={
-                  <ProtectedRoute>
-                    <AppShell>
-                      <DashboardPage />
-                    </AppShell>
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/transactions"
-                element={
-                  <ProtectedRoute>
-                    <AppShell>
-                      <TransactionsPage />
-                    </AppShell>
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/budgets"
-                element={
-                  <ProtectedRoute>
-                    <AppShell>
-                      <BudgetsPage />
-                    </AppShell>
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/categories"
-                element={
-                  <ProtectedRoute>
-                    <AppShell>
-                      <CategoriesPage />
-                    </AppShell>
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/reports"
-                element={
-                  <ProtectedRoute>
-                    <AppShell>
-                      <ReportsPage />
-                    </AppShell>
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/settings"
-                element={
-                  <ProtectedRoute>
-                    <AppShell>
-                      <SettingsPage />
-                    </AppShell>
-                  </ProtectedRoute>
-                }
-              />
+                {/* Protected Application Routes */}
+                <Route
+                  path="/dashboard"
+                  element={
+                    <ProtectedRoute>
+                      <AppShell>
+                        <DashboardPage />
+                      </AppShell>
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/transactions"
+                  element={
+                    <ProtectedRoute>
+                      <AppShell>
+                        <TransactionsPage />
+                      </AppShell>
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/budgets"
+                  element={
+                    <ProtectedRoute>
+                      <AppShell>
+                        <BudgetsPage />
+                      </AppShell>
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/categories"
+                  element={
+                    <ProtectedRoute>
+                      <AppShell>
+                        <CategoriesPage />
+                      </AppShell>
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/reports"
+                  element={
+                    <ProtectedRoute>
+                      <AppShell>
+                        <ReportsPage />
+                      </AppShell>
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/settings"
+                  element={
+                    <ProtectedRoute>
+                      <AppShell>
+                        <SettingsPage />
+                      </AppShell>
+                    </ProtectedRoute>
+                  }
+                />
 
-              {/* Public Entry & Fallback Routes */}
-              <Route
-                path="/"
-                element={
-                  <PublicOnlyRoute>
-                    <WelcomePage />
-                  </PublicOnlyRoute>
-                }
-              />
-              <Route path="*" element={<Navigate to="/" replace />} />
-            </Routes>
-          </BrowserRouter>
-          <Toaster
-            position="bottom-right"
-            richColors
-            toastOptions={{
-              style: {
-                background: 'var(--bg-card)',
-                borderColor: 'var(--border-subtle)',
-                color: 'var(--text-primary)',
-              },
-            }}
-          />
-        </FinanceDataProvider>
+                {/* Public Entry & Fallback Routes */}
+                <Route
+                  path="/"
+                  element={
+                    <PublicOnlyRoute>
+                      <WelcomePage />
+                    </PublicOnlyRoute>
+                  }
+                />
+                <Route path="*" element={<Navigate to="/" replace />} />
+              </Routes>
+            </BrowserRouter>
+            <Toaster
+              position="bottom-right"
+              richColors
+              toastOptions={{
+                style: {
+                  background: 'var(--bg-card)',
+                  borderColor: 'var(--border-subtle)',
+                  color: 'var(--text-primary)',
+                },
+              }}
+            />
+          </FinanceDataProvider>
+        </DemoProvider>
       </AuthProvider>
     </ErrorBoundary>
   );
